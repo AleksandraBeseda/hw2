@@ -1,32 +1,13 @@
+import { PostViewModel, db } from "../db/db";
 import { blogsRepository } from "./blogsRepository";
-
-export type PostViewModel = {
-    id: string,
-    title: string,
-    shortDescription: string,
-    content: string,
-    blogId: string,
-    blogName: string
-};
-
-let posts: PostViewModel[] = [
-    {
-        id: "10",
-        title: "Microservices sap",
-        shortDescription: "No infirmation, only magic",
-        content: "some pictures, no examples",
-        blogId: "321",
-        blogName: "sap destination services"
-    }
-];
 
 export const postsRepository = {
     findPosts(){
-        return posts;
+        return db.posts;
     },
 
     findPostById(id: string){
-        const foundPost = posts.find(post => post.id === id);
+        const foundPost = db.posts.find(post => post.id === id);
         return foundPost;
     },
 
@@ -41,7 +22,7 @@ export const postsRepository = {
                 blogId: existingBlog.id,
                 blogName: existingBlog.name
             };
-            posts.push(createdPost);
+            db.posts.push(createdPost);
         return createdPost;
     };
     return null;
@@ -60,20 +41,18 @@ updatePost(postId: string, title: string, shortDescription: string, content: str
 return false;
 },
 
-
-
-    deletePost(id: string){
-        for(let i = 0; i< posts.length; i++){
-            if(posts[i].id===id){
-                posts.splice(i, 1);
-              return true;
-            }
-          }
-          return false;
-    },
-
-    deleteAllPosts(){
-        posts.length = 0
+deletePost(id: string){
+    for(let i = 0; i < db.posts.length; i++){
+        if(db.posts[i].id===id){
+            db.posts.splice(i, 1);
+            return true;
+        }
     }
+    return false;
+},
+deleteAllPosts(){
+    db.posts.length = 0;
+}
+
 }
 

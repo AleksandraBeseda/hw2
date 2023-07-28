@@ -1,7 +1,7 @@
-import { app } from './../src/app';
+import { RouterPaths, app } from './../src/app';
 import request from "supertest";
 import { HTTP_STATUSES } from "../src/utils";
-import { BlogViewModel } from '../src/repositories/blogsRepository';
+import { BlogViewModel } from '../src/db/db';
 
  export const invalidbjWithAllParams = {
   "errorsMessages": [
@@ -26,12 +26,12 @@ export const authHeader = {Authorization : `Basic ` + btoa("admin:qwerty")};
 describe("Blogs requests", () => {
   
   beforeAll(async() => {
-    await request(app).delete('/testing/all-data');
+    await request(app).delete(RouterPaths.testing);
   });
   
   it("should return empty Blogs array", async () => {
     await request(app)
-    .get("/blogs")
+    .get(RouterPaths.blogs)
     .expect(HTTP_STATUSES.OK_200, [])
   });
     
@@ -41,37 +41,37 @@ describe("Blogs requests", () => {
     .expect(HTTP_STATUSES.NOT_FOUND_404)          
   });
 
-  const mockDataCorrectParamPost1 = {
+  const mockDataCorrectParamBlog1 = {
     id: "0",
     name: "Zazie",
     description: "Zazie responds rarely",
     websiteUrl: "https://www.zazie.com"
   };
 
-  it("shouldn't create new post because NO AUTH", async () => {
+  it("shouldn't create new Blog because NO AUTH", async () => {
     await request(app)
-    .post("/blogs")
-    .send(mockDataCorrectParamPost1)
+    .post(RouterPaths.blogs)
+    .send(mockDataCorrectParamBlog1)
     .expect(HTTP_STATUSES.UNAUTHORIZED_401)
   });
 
   let createdBlog1: any | BlogViewModel = null;
-  it("should create new blog 1 because AUTH and correct object", async () => {
+  it("should create new Blog 1 because AUTH and correct object", async () => {
     const response = await request(app)
-    .post("/blogs")
+    .post(RouterPaths.blogs)
     .set(authHeader)
-    .send(mockDataCorrectParamPost1)
+    .send(mockDataCorrectParamBlog1)
     .expect(HTTP_STATUSES.CREATED_201);
 
     createdBlog1 = response.body;
 
     await request(app)
-    .get("/blogs")
+    .get(RouterPaths.blogs)
     .expect(HTTP_STATUSES.OK_200, [createdBlog1])
 
   });
 
-  const mockDataIncorrectParamPost = {
+  const mockDataIncorrectParamBlog = {
     id: "",
     name: "",
     description: "",
@@ -80,17 +80,17 @@ describe("Blogs requests", () => {
 
   it("shouldn't create new blog because of wrong params", async() => {
     await request(app)
-    .post("/blogs")
+    .post(RouterPaths.blogs)
     .set(authHeader)
-    .send(mockDataIncorrectParamPost)
+    .send(mockDataIncorrectParamBlog)
     .expect(HTTP_STATUSES.BAD_REQUEST_400, invalidbjWithAllParams);
 
     await request(app)
-    .get("/blogs")
+    .get(RouterPaths.blogs)
     .expect(HTTP_STATUSES.OK_200, [createdBlog1])
   });
 
-  const mockDataCorrectParamPost2 = {
+  const mockDataCorrectParamBlog2 = {
     id: "0",
     name: "Zazie",
     description: "Zazie responds rarely",
@@ -100,24 +100,28 @@ describe("Blogs requests", () => {
   let createdBlog2: any | BlogViewModel = null;
   it("should create new blog 2 because AUTH and correct object", async () => {
     const response = await request(app)
-    .post("/blogs")
+    .post(RouterPaths.blogs)
     .set(authHeader)
-    .send(mockDataCorrectParamPost2)
+    .send(mockDataCorrectParamBlog2)
     .expect(HTTP_STATUSES.CREATED_201);
 
     createdBlog2 = response.body;
 
     await request(app)
-    .get("/blogs")
+    .get(RouterPaths.blogs)
     .expect(HTTP_STATUSES.OK_200, [createdBlog1, createdBlog2])
 
   });
   
-let mockDataUpdateBlog1 = {name: "Arturs", description: "Good man", websiteUrl: "https://arturs.ru"};
-let updatedBlog1: null | BlogViewModel = null; 
+let mockDataUpdateBlog1 = {
+  name: "Arturs", 
+  description: "Good man", 
+  websiteUrl: "https://arturs.ru"};
+
+let updatedBlog1: any = null; 
   it("should update createdBlog1", async () => {
      await request(app)
-    .put(`/blogs/`+ createdBlog1.id)
+    .put(RouterPaths.blogs+'/'+ createdBlog1.id)
     .set(authHeader)
     .send(mockDataUpdateBlog1)
     .expect(HTTP_STATUSES.NO_CONTENT_204)
@@ -130,55 +134,55 @@ let updatedBlog1: null | BlogViewModel = null;
     };
 
     await request(app)
-    .get(`/blogs/`+ createdBlog1.id)
+    .get(RouterPaths.blogs + `/`+ createdBlog1.id)
     .expect(HTTP_STATUSES.OK_200, updatedBlog1)
 
     await request(app)
-    .get("/blogs")
+    .get(RouterPaths.blogs)
     .expect(HTTP_STATUSES.OK_200, [updatedBlog1, createdBlog2])
 
   });
 
   it("shouldn't update blog because of incorrect ID ", async () => {
     await request(app)
-   .put(`/blogs/`+ 1028324)
+   .put(RouterPaths.blogs + `/`+ 1028324)
    .set(authHeader)
    .send(mockDataUpdateBlog1)
    .expect(HTTP_STATUSES.NOT_FOUND_404)
 
    await request(app)
-   .get("/blogs")
+   .get(RouterPaths.blogs)
    .expect(HTTP_STATUSES.OK_200, [updatedBlog1, createdBlog2])
 
  });
 
  it("shouldn't update blog because of incorrect body params ", async () => {
   await request(app)
- .put(`/blogs/`+ createdBlog2.id)
+ .put(RouterPaths.blogs + `/`+ createdBlog2.id)
  .set(authHeader)
- .send(mockDataIncorrectParamPost)
+ .send(mockDataIncorrectParamBlog)
  .expect(HTTP_STATUSES.BAD_REQUEST_400, invalidbjWithAllParams);
 
  await request(app)
- .get("/blogs")
+ .get(RouterPaths.blogs)
  .expect(HTTP_STATUSES.OK_200, [updatedBlog1, createdBlog2])
 
 });
 
  it("should delete blog by ID", async() => {
   await request(app)
-  .delete(`/blogs/`+createdBlog1.id)
+  .delete(RouterPaths.blogs + `/`+createdBlog1.id)
   .set(authHeader)
   .expect(HTTP_STATUSES.NO_CONTENT_204);
 
   await request(app)
-  .get("/blogs")
+  .get(RouterPaths.blogs)
   .expect(HTTP_STATUSES.OK_200, [createdBlog2])
  });
 
  it("shouldn't delete blog because such ID doesn't exist", async() => {
   await request(app)
-  .delete(`/blogs/`+1234567890)
+  .delete(RouterPaths.blogs + `/`+1234567890)
   .set(authHeader)
   .expect(HTTP_STATUSES.NOT_FOUND_404)
 
@@ -186,11 +190,11 @@ let updatedBlog1: null | BlogViewModel = null;
 
  it("should delete all data", async() => {
   await request(app)
-  .delete("/testing/all-data")
+  .delete(RouterPaths.testing)
   .expect(HTTP_STATUSES.NO_CONTENT_204);
 
   await request(app)
-  .get("/blogs")
+  .get(RouterPaths.blogs)
   .expect(HTTP_STATUSES.OK_200, [])
 
  });

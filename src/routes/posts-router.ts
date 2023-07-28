@@ -1,9 +1,9 @@
-import { Router, Request, Response } from "express";
+import { Router, Request, Response, NextFunction } from "express";
 import { HTTP_STATUSES } from "../utils";
 import { postsRepository } from "../repositories/postsRepository";
 import { RequestWithBody, RequestWithBodyAndParams, RequestWithParams } from "../types/requestModelType";
 import { basicAuthMiddleware } from "../middlewares/basic-auth-middleware";
-import { PostsValidationMiddleware } from "../middlewares/posts-validation-middleware";
+import { PostValidationByBlogIdUpdate, PostsValidationMiddleware } from "../middlewares/posts-validation-middleware";
 
 export const postsRouter = Router({});
 
@@ -13,8 +13,7 @@ postsRouter.get("/", (req: Request, res: Response) => {
 });
 
 postsRouter.get("/:id", (req: RequestWithParams<{id: string}>, res: Response) => {
-    const id = req.params.id;
-    const foundPost = postsRepository.findPostById(id);
+    const foundPost = postsRepository.findPostById(req.params.id);
     if(foundPost){
         res.status(HTTP_STATUSES.OK_200).send(foundPost);
     } else {
@@ -32,15 +31,10 @@ PostsValidationMiddleware,
 
 postsRouter.put("/:id",
 basicAuthMiddleware,
+PostValidationByBlogIdUpdate,
 PostsValidationMiddleware,
 (req: RequestWithBodyAndParams<{id: string}, {title: string, shortDescription: string, content: string, blogId: string}> , res: Response) => {
-    console.log("here")
-    const postId = req.params.id;
-    const existingPost = postsRepository.findPostById(postId);
-    if(!existingPost){
-        res.sendStatus(HTTP_STATUSES.NOT_FOUND_404);
-    }
-    const updatedPost = postsRepository.updatePost(postId, req.body.title, req.body.shortDescription, req.body.content, req.body.blogId);
+    const updatedPost = postsRepository.updatePost(req.params.id, req.body.title, req.body.shortDescription, req.body.content, req.body.blogId);
     if(updatedPost){
         res.sendStatus(HTTP_STATUSES.NO_CONTENT_204)
     } else {

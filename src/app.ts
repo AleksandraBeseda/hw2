@@ -1,13 +1,18 @@
-import express, { Request, Response } from "express";
-import { HTTP_STATUSES } from "./utils";
+import express from "express";
 import { blogsRouter } from "./routes/blogs-router";
 import { postsRouter } from "./routes/posts-router";
 import { testRouter } from "./routes/testing-router";
 
 export const app = express();
 
+export const RouterPaths = {
+    blogs: '/blogs',
+    posts: '/posts',
+    testing: '/testing/all-data'
+}
+
 const parseMiddleware = express.json();
 app.use(parseMiddleware);
-app.use("/blogs", blogsRouter);
-app.use("/posts", postsRouter);
-app.use("/testing/all-data", testRouter);
+app.use(RouterPaths.blogs, blogsRouter);
+app.use(RouterPaths.posts, postsRouter);
+app.use(RouterPaths.testing, testRouter);

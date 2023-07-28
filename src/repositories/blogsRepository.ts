@@ -1,34 +1,12 @@
-
-export type BlogViewModel = {
-    id: string;
-    name: string;
-    description: string;
-    websiteUrl: string
-}
-
-let blogs: BlogViewModel[] =[
-    {
-        id: "1",
-        name: "Marshal",
-        description: "little clever mouse",
-        websiteUrl: "https//notice.com"
-    },
-    {
-        id: "2",
-        name: "Witch",
-        description: "elementary level",
-        websiteUrl: "https://www.youtube.com"
-    }
-
-] 
+import { BlogViewModel, db } from "../db/db";
 
 export const blogsRepository = {
     findBlogs(){
-        return blogs;
+        return db.blogs;
     },
 
     findBlogById(id: string){
-        const foundBlog = blogs.find(blog => blog.id === id);
+        const foundBlog = db.blogs.find(blog => blog.id === id);
         return foundBlog;
     },
     
@@ -39,7 +17,7 @@ export const blogsRepository = {
             description,
             websiteUrl
         };
-        blogs.push(createdBlog);
+        db.blogs.push(createdBlog);
         return createdBlog;
     },
 
@@ -56,9 +34,9 @@ export const blogsRepository = {
     },
 
     deleteBlog(id: string){
-        for(let i = 0; i< blogs.length; i++){
-            if(blogs[i].id===id){
-                blogs.splice(i, 1);
+        for(let i = 0; i < db.blogs.length; i++){
+            if(db.blogs[i].id===id){
+                db.blogs.splice(i, 1);
               return true;
             }
           }
@@ -66,7 +44,7 @@ export const blogsRepository = {
     },
 
     deleteAllBlogs(){
-        blogs.length = 0;
+        db.blogs.length = 0;
      }
 
 };
