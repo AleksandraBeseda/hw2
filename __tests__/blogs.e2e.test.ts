@@ -72,10 +72,9 @@ describe("Blogs requests", () => {
   });
 
   const mockDataIncorrectParamBlog = {
-    id: "",
     name: "",
     description: "",
-    websiteUrl: "https://11111111111111111111111111111111111111111111111111111111"
+    websiteUrl: ""
   };
 
   it("shouldn't create new blog because of wrong params", async() => {
