@@ -34,9 +34,10 @@ basicAuthMiddleware,
 BlogsValidationMiddleware, 
 (req: RequestWithBodyAndParams<{id: string}, {name: string, description: string, websiteUrl: string}>, res: Response) => {
     const blogId = req.params.id;
-    const foundBlogById = blogsRepository.findBlogById(blogId);
-    if(foundBlogById){
-        blogsRepository.updateBlog(blogId, req.body.name, req.body.description, req.body.websiteUrl);//we don't need to return
+   
+    const blogIsUpdated = blogsRepository.updateBlog(blogId, req.body.name, req.body.description, req.body.websiteUrl);//we don't need to return
+
+    if(blogIsUpdated){
         res.sendStatus(HTTP_STATUSES.NO_CONTENT_204);
     }else{
         res.sendStatus(HTTP_STATUSES.NOT_FOUND_404);
@@ -45,6 +46,7 @@ BlogsValidationMiddleware,
 
 blogsRouter.delete("/:id", basicAuthMiddleware, (req: RequestWithParams <{id: string}>, res: Response) => {
     const isBlogDeleted = blogsRepository.deleteBlog(req.params.id);
+    
     if(isBlogDeleted){
         res.sendStatus(HTTP_STATUSES.NO_CONTENT_204);
     }else{

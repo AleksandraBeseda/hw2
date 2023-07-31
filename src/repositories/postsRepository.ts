@@ -12,33 +12,34 @@ export const postsRepository = {
     },
 
     createPost(title: string, shortDescription: string, content: string, blogId: string){
-        const existingBlog = blogsRepository.findBlogById(blogId);
-        if(existingBlog){
-            const createdPost: PostViewModel = {
+        const blog = blogsRepository.findBlogById(blogId);
+    
+        const createdPost: PostViewModel = {
                 id: String(+new Date()),
                 title,
                 shortDescription,
                 content,
-                blogId: existingBlog.id,
-                blogName: existingBlog.name
-            };
-            db.posts.push(createdPost);
+                blogId: blog!.id,
+                blogName: blog!.name
+        }
+         
+        db.posts.push(createdPost);
         return createdPost;
-    };
-    return null;
 },
 
 updatePost(postId: string, title: string, shortDescription: string, content: string, blogId: string){
-    const existingBlog = blogsRepository.findBlogById(blogId);
-    let foundPost = postsRepository.findPostById(postId);
-    if(existingBlog && foundPost){
+    let foundPost = this.findPostById(postId);
+
+    if(foundPost){
         foundPost.title = title;
         foundPost.shortDescription = shortDescription;
         foundPost.content = content;
         foundPost.blogId = blogId;
-    return true;
-};
-return false;
+
+        return true;
+    }
+
+    return false;
 },
 
 deletePost(id: string){

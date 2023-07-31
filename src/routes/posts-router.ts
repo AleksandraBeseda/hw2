@@ -3,7 +3,7 @@ import { HTTP_STATUSES } from "../utils";
 import { postsRepository } from "../repositories/postsRepository";
 import { RequestWithBody, RequestWithBodyAndParams, RequestWithParams } from "../types/requestModelType";
 import { basicAuthMiddleware } from "../middlewares/basic-auth-middleware";
-import { PostValidationByBlogIdUpdate, PostsValidationMiddleware } from "../middlewares/posts-validation-middleware";
+import { PostsValidationMiddleware } from "../middlewares/posts-validation-middleware";
 
 export const postsRouter = Router({});
 
@@ -31,7 +31,6 @@ PostsValidationMiddleware,
 
 postsRouter.put("/:id",
 basicAuthMiddleware,
-PostValidationByBlogIdUpdate,
 PostsValidationMiddleware,
 (req: RequestWithBodyAndParams<{id: string}, {title: string, shortDescription: string, content: string, blogId: string}> , res: Response) => {
     const updatedPost = postsRepository.updatePost(req.params.id, req.body.title, req.body.shortDescription, req.body.content, req.body.blogId);
@@ -40,7 +39,7 @@ PostsValidationMiddleware,
     } else {
         res.sendStatus(HTTP_STATUSES.NOT_FOUND_404);
     }
-})
+});
 
 postsRouter.delete("/:id", basicAuthMiddleware, (req: RequestWithParams <{id: string}>, res: Response) => {
     const isPostDeleted = postsRepository.deletePost(req.params.id);
@@ -49,4 +48,4 @@ postsRouter.delete("/:id", basicAuthMiddleware, (req: RequestWithParams <{id: st
     }else{
         res.sendStatus(HTTP_STATUSES.NOT_FOUND_404);
     }
-})
+});

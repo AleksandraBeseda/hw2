@@ -22,7 +22,8 @@ export const blogsRepository = {
     },
 
     updateBlog(id: string, name: string, description: string, websiteUrl: string){
-        const foundBlog = blogsRepository.findBlogById(id);
+        const foundBlog = this.findBlogById(id);
+        
         if(foundBlog){
             foundBlog.name = name;
             foundBlog.description = description;

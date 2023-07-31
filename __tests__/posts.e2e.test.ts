@@ -178,9 +178,17 @@ describe("Posts requests", () => {
 
     it("shouldn't update newPost2 because such PostID doesn exist", async() => {
 
+      const correctUpdateDataPost = {
+        title: "Test",
+        shortDescription: "test",
+        content: "test",
+        blogId: createdBlog.id
+      };
+
       await request(app)
       .put(RouterPaths.posts + '/' +"fhdbjfblalsn93ueud")
       .set(authHeader)
+      .send(correctUpdateDataPost)
       .expect(HTTP_STATUSES.NOT_FOUND_404)
 
     });
